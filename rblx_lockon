@@ -1,0 +1,66 @@
+local uis = game:GetService("UserInputService")
+local rs = game:GetService("RunService")
+
+local plr = game.Players.LocalPlayer
+
+
+local camera = workspace.Camera
+
+local Target
+
+local off = false
+
+function mouse()
+	local mouse = plr:GetMouse()
+	if mouse.Target:IsA("BasePart") then
+		local enemy = mouse.Target.Parent
+		if mouse.Target.Parent:IsA("Accessory") then
+			enemy = mouse.Target.Parent.Parent
+		end
+
+
+		if enemy ~= plr.Character and enemy:FindFirstChildOfClass("Humanoid") then
+			Target = game:GetService("Players"):GetPlayerFromCharacter(enemy)
+		else
+			Target = nil
+		end
+
+	end
+end
+
+uis.InputBegan:Connect(function(inp,proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.H then
+		if Target then
+			Target = nil
+		else
+			off = false
+			mouse()
+		end
+	end
+end)
+
+uis.InputBegan:Connect(function(inp,proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.Y then
+		if off then
+			off = false
+		else
+			off = true
+		end
+	end
+end)
+
+rs.RenderStepped:Connect(function()
+	if Target ~= nil and Target.Character.Parent ~= nil and plr.Character.Parent ~= nil then
+		if off then
+			camera.CameraType = "Custom"
+		else
+			camera.CameraType = "Scriptable"
+			local cp = CFrame.new(plr.Character.HumanoidRootPart.Position, Target.Character.HumanoidRootPart.Position)*CFrame.new(3.2,2.8,10).p
+			camera.CFrame = CFrame.new(cp,Target.Character.HumanoidRootPart.Position)
+		end
+	else
+		camera.CameraType = "Custom"
+	end
+end)
