@@ -1,0 +1,157 @@
+local uis = game:GetService("UserInputService")
+
+--[[ Mvmnt ]] --
+
+local Forward = false
+local Left = false
+local Back = false
+local Right = false
+
+
+uis.InputBegan:Connect(function(inp,proc)
+	if proc then return end
+
+	if inp.KeyCode == Enum.KeyCode.W then
+		Forward = true
+	end
+	if inp.KeyCode == Enum.KeyCode.A then
+		Left = true
+	end
+	if inp.KeyCode == Enum.KeyCode.S then
+		Back = true
+	end
+	if inp.KeyCode == Enum.KeyCode.D then
+		Right = true
+	end
+end)
+
+uis.InputEnded:Connect(function(inp,proc)
+	if proc then return end
+
+	if inp.KeyCode == Enum.KeyCode.W then
+		Forward = false
+	end
+	if inp.KeyCode == Enum.KeyCode.A then
+		Left = false
+	end
+	if inp.KeyCode == Enum.KeyCode.S then
+		Back = false
+	end
+	if inp.KeyCode == Enum.KeyCode.D then
+		Right = false
+	end
+end)
+ 
+--[[ Keybinds ]]--
+
+local mngKey = Enum.UserInputType.MouseButton3
+
+local Air = Enum.Material.Air
+ 
+ 
+--[[ Dependencies ]]--
+ 
+local ca = game:GetService("ContextActionService")
+local plr = game:GetService("Players").LocalPlayer
+local h = 0.0174533
+local antigrav
+ 
+ 
+--[[ Functions ]]--
+ 
+function Frontflip()
+	plr.Character.Humanoid:ChangeState("Jumping")
+	wait()
+	plr.Character.Humanoid.Sit = true
+	for i = 1,360 do 
+		delay(i/720,function()
+		plr.Character.Humanoid.Sit = true
+			plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.Angles(-h,0,0)
+		end)
+	end
+	wait(0.55)
+	plr.Character.Humanoid.Sit = false
+end
+ 
+function Backflip()
+	plr.Character.Humanoid:ChangeState("Jumping")
+	wait()
+	plr.Character.Humanoid.Sit = true
+	for i = 1,360 do
+		delay(i/720,function()
+		plr.Character.Humanoid.Sit = true
+			plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.Angles(h,0,0)
+		end)
+	end
+	wait(0.55)
+	plr.Character.Humanoid.Sit = false
+end
+ 
+function Airjump()
+	plr.Character:FindFirstChildOfClass'Humanoid':ChangeState("Seated")
+	wait()
+	plr.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
+end
+ 
+local v = -1
+
+local mode = 1
+
+function Flip(act,inp,obj)
+	if inp == Enum.UserInputState.Begin then
+		plr.Character.Humanoid:ChangeState("Jumping")
+		wait()
+		plr.Character.Humanoid.Sit = true
+		
+
+
+		for i = 0.36,(360/mode) do 
+			delay(i/(720/mode),function()
+			plr.Character.Humanoid.Sit = true
+				plr.Character.HumanoidRootPart.CFrame = (plr.Character.HumanoidRootPart.CFrame + Vector3.new(0, (0.06 * mode) / 3, 0)) * CFrame.Angles(
+					((v*h)*mode),
+					0,
+					0)
+			end)
+		end
+
+		wait(0.55)
+		plr.Character.Humanoid.Sit = false
+	end
+end
+ 
+--[[ Binds ]]--
+ 
+function mng(act,inp,obj)
+	if plr.Character.Humanoid.FloorMaterial == Air then
+
+		Flip(act,inp,obj)
+	else
+		Airjump(act,inp,obj)
+		task.wait(.06)
+		Flip(act,inp,obj)
+	end
+end
+
+ca:BindAction("mng",mng,false,mngKey)
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.X then
+		if mode ~= 1000 then
+			mode *= 10
+		else
+			mode = 1
+		end
+
+	end
+end)
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.P then
+
+		v *= -1
+
+	end
+end)
