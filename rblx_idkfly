@@ -1,0 +1,126 @@
+local plr = game:GetService("Players").LocalPlayer
+
+local camera = workspace.Camera
+
+local rs = game:GetService("RunService")
+local uis = game:GetService("UserInputService")
+local debris = game:GetService("Debris")
+
+local multi = 1
+
+local up = false
+
+local lock = false
+local down = false
+
+
+function bv(obj, dur, vector)
+	local bv = Instance.new("BodyVelocity")
+
+	bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+	bv.P = math.huge
+
+	if up then
+		if vector.y < 0 and plr.Character.Humanoid.FloorMaterial ~= Enum.Material.Air then
+			bv.MaxForce = Vector3.new(math.huge, 0, math.huge)
+		end
+	else
+		if (vector/multi).y < Vector3.new(0, 12, 0).y and lock == false or down == true and plr.Character.Humanoid.FloorMaterial ~= Enum.Material.Air and plr.Character.Humanoid.Health > 0 then
+			bv.MaxForce = Vector3.new(math.huge, 0, math.huge)
+		end
+	end
+
+	
+
+	bv.Velocity = vector
+
+	bv.Parent = obj
+
+	debris:AddItem(bv, dur)
+
+end
+
+local tgl = false
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.V then
+		if tgl then
+			tgl = false
+		else
+			tgl = true
+		end
+	end
+end)
+
+
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.N then
+		if multi <= 5 then
+			multi *= 1.8
+		else
+			multi = 1
+		end
+	end
+end)
+
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.C then
+		if down then
+			down = false
+		else
+			down = true
+		end
+	end
+end)
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.L then
+		if lock then
+			lock = false
+		else
+			lock = true
+		end
+	end
+end)
+
+uis.InputBegan:Connect(function(inp, proc)
+	if proc then return end
+	if inp.KeyCode == Enum.KeyCode.U then
+		if up then
+			up = false
+		else
+			up = true
+		end
+	end
+end)
+
+local nv = -camera.CFrame.LookVector * Vector3.new(0, 1, 0) * 16
+
+rs.RenderStepped:Connect(function()
+	if tgl then
+
+			if down then
+				nv = -camera.CFrame.LookVector * Vector3.new(0, -1, 0) * 16
+			else
+				nv = -camera.CFrame.LookVector * Vector3.new(0, 1, 0) * 16
+			end
+
+		if lock then nv = Vector3.new(0, 0, 0) end
+
+		if up then
+			if down then
+				nv = 2 * Vector3.new(0, -1, 0) * 16
+			else
+				nv = 2 * Vector3.new(0, 1, 0) * 16
+			end
+		end
+
+		bv(plr.Character.HumanoidRootPart, .12, ((nv) + (plr.Character.Humanoid.MoveDirection * Vector3.new(1, 0, 1) * 16)) * multi)
+	end
+end)
